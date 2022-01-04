@@ -44,12 +44,17 @@
         </el-card>
       </div>
       <el-card shadow="hover" style="height:280px" >
-        <div style="height:280px;" ref="echart"></div>
+        <!-- <div style="height:280px;" ref="echart"></div> -->
+        <echart :chartData="echartData.order" style="height:280px;"></echart>
       </el-card>
       <div class="graph">
         <el-card shadow="hover" style="height:280px">
+          <!-- <div style="height:240px;" ref="userEcharts"></div> -->
+          <echart :chartData="echartData.user" style="height:240px;"></echart>
         </el-card>
         <el-card shadow="hover" style="height:280px">
+          <!-- <div style="height:240px;" ref="videoEcharts"></div> -->
+          <echart :chartData="echartData.video" :isAxisChart="false" style="height:240px;"></echart>
         </el-card>
       </div>
     </el-col>
@@ -58,8 +63,11 @@
 
 <script>
 import { getHome } from '../../api/data';
-import * as echarts from 'echarts';
+import Echart from '../../components/Echarts.vue';
 export default {
+  components: {
+    Echart
+  },
   data () {
     return {
       userImg: require('../../assets/images/user.png'),
@@ -108,45 +116,16 @@ export default {
           color: '#5ab1ef'
         }
       ],
-      echartsData: {
+      echartData: {
         order: {
-          legend: {
-            // 图例文字颜色
-            textStyle: {
-              color: "#333"
-            }
-          },
-          grid: {
-            left: "20%"
-          },
-          // 提示框
-          tooltip: {
-            trigger: "axis"
-          },
-          xAxis: {
-            type: "category", // 类目轴
-            data: [],
-            axisLine: {
-              lineStyle: {
-                color: "#17b3a3"
-              }
-            },
-            axisLabel: {
-              interval: 0,
-              color: "#333"
-            }
-          },
-          yAxis: [
-            {
-              type: "value",
-              axisLine: {
-                lineStyle: {
-                  color: "#17b3a3"
-                }
-              }
-            }
-          ],
-          color: ["#2ec7c9", "#b6a2de", "#5ab1ef", "#ffb980", "#d87a80", "#8d98b3"],
+          xData: [],
+          series: []
+        },
+        user: {
+          xData: [],
+          series: []
+        },
+        video: {
           series: []
         }
       }
@@ -158,17 +137,32 @@ export default {
         console.log(res);
         this.tableData = res.data.tableData;
         const order = res.data.orderData;
-        this.echartsData.order.xAxis.data = order.date;
         const keyArray = Object.keys(order.data[0]);
+        this.echartData.order.xData = order.date;
         keyArray.forEach((key) => {
-          this.echartsData.order.series.push({
+          this.echartData.order.series.push({
             name: key,
             data: order.data.map((item) => item[key]),
             type: 'line'
           });
         });
-        const myEchatrsOrder = echarts.init(this.$refs.echart);
-        myEchatrsOrder.setOption(this.echartsData.order);
+
+        // 柱状图
+        this.echartData.user.xData = res.data.userData.map((item) => item.date);
+        this.echartData.user.series.push({
+          name: '新增用户',
+          data: res.data.userData.map((item) => item.new),
+          type: 'bar'
+        });
+        this.echartData.user.series.push({
+          name: '活跃用户',
+          data: res.data.userData.map((item) => item.active),
+          type: 'bar'
+        });
+        this.echartData.video.series.push({
+          data: res.data.videoData,
+          type: 'pie'
+        });
       });
     }
   },
