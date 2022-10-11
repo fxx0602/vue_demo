@@ -8,8 +8,7 @@
         @click="hideMenus()"
       ></el-button>
       <el-breadcrumb>
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: current.path}" v-if="current">{{current.label}}</el-breadcrumb-item>
+        <el-breadcrumb-item v-for="item in tags" :key="item.path" :to="{ path: item.path }">{{item.label}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="r-content">
@@ -40,6 +39,7 @@ export default {
   },
   computed: {
     ...mapState({
+      tags: state => state.tab.tagsList,
       current: (state) => state.tab.currentMenu
     })
   }
